@@ -34,8 +34,14 @@ create table if not exists public.transactions (
   pagador_id uuid references public.users(id),
   tipo_reparto text not null default 'compartido'
     check (tipo_reparto in ('compartido', 'de_javier', 'de_josefina', 'abono')),
-  -- mes YYYY-MM derivado de fecha (columna generada)
-  mes text generated always as (to_char(fecha, 'YYYY-MM')) stored,
+  -- mes YYYY-MM derivado de fecha (columna generada).
+  -- Se usa lpad+extract en vez de to_char porque to_char no es IMMUTABLE
+  -- y Postgres no lo permite en columnas generadas.
+  mes text generated always as (
+    lpad(extract(year from fecha)::text, 4, '0')
+    || '-'
+    || lpad(extract(month from fecha)::text, 2, '0')
+  ) stored,
   created_by uuid references public.users(id),
   created_at timestamptz not null default now()
 );
