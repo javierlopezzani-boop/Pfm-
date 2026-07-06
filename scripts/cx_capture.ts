@@ -151,6 +151,14 @@ async function main() {
   console.log("→ Trayendo datos reales por Node…");
   const fixtures = await traerFixtures();
   const javier = fixtures.users.find((u) => u.nombre === "Javier") ?? fixtures.users[0];
+  // Cuentas/tarjetas de ejemplo para verificar el layout (la tabla real aún puede no existir)
+  if (!fixtures.accounts || fixtures.accounts.length === 0) {
+    fixtures.accounts = [
+      { id: "a1", nombre: "Cuenta corriente", tipo: "cuenta", monto: 2045000, cupo: null, orden: 0 },
+      { id: "a2", nombre: "Cuenta ahorro", tipo: "cuenta", monto: 850000, cupo: null, orden: 1 },
+      { id: "a3", nombre: "Tarjeta Falabella", tipo: "tarjeta", monto: 697118, cupo: 2000000, orden: 2 },
+    ];
+  }
   console.log(
     `  ${fixtures.transactions.length} transacciones, ${fixtures.categories.length} categorías`
   );

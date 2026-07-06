@@ -20,3 +20,7 @@ npm-debug.log*
 
 # typescript
 *.tsbuildinfo
+
+# QA (salida generada)
+/qa/screenshots/
+/qa/reporte_automatico.md

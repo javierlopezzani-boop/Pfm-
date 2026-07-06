@@ -63,6 +63,18 @@ export interface Investment {
   fecha_actualizacion: string;
 }
 
+export type TipoCuenta = "cuenta" | "tarjeta";
+
+export interface Account {
+  id: string;
+  nombre: string;
+  tipo: TipoCuenta;
+  monto: number; // cuenta: saldo · tarjeta: monto utilizado
+  cupo: number | null; // solo tarjetas
+  orden: number;
+  fecha_actualizacion: string;
+}
+
 export interface CategorizeSuggestion {
   categoria: string;
   monto: number;

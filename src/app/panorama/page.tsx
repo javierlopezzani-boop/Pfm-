@@ -2,19 +2,21 @@
 
 import { useCallback, useEffect, useState } from "react";
 import { TabBar } from "@/components/TabBar";
+import { CuentasTarjetas } from "@/components/panorama/CuentasTarjetas";
 import { Deuda } from "@/components/panorama/Deuda";
 import { Historial } from "@/components/panorama/Historial";
 import { Inversiones } from "@/components/panorama/Inversiones";
 import { Proyeccion } from "@/components/panorama/Proyeccion";
 import { mesActual, sumarMeses } from "@/lib/format";
 import { proyeccion12Meses } from "@/lib/projection";
-import type { Installment, Investment, Transaction } from "@/lib/types";
+import type { Account, Installment, Investment, Transaction } from "@/lib/types";
 import { useAppData } from "@/lib/useAppData";
 
 export default function PanoramaPage() {
   const { supabase, categorias, settings, javier, cargando } = useAppData();
   const [installments, setInstallments] = useState<Installment[]>([]);
   const [investments, setInvestments] = useState<Investment[]>([]);
+  const [accounts, setAccounts] = useState<Account[]>([]);
   const [transacciones, setTransacciones] = useState<Transaction[]>([]);
   const [version, setVersion] = useState(0);
 
@@ -24,13 +26,16 @@ export default function PanoramaPage() {
     async function cargar() {
       // Historial de 24 meses para tendencia + comparación año anterior
       const desde = sumarMeses(mesActual(), -24);
-      const [{ data: inst }, { data: inv }, { data: tx }] = await Promise.all([
-        supabase.from("installments").select("*").order("fecha_inicio"),
-        supabase.from("investments").select("*").order("monto_actual", { ascending: false }),
-        supabase.from("transactions").select("*").gte("mes", desde),
-      ]);
+      const [{ data: inst }, { data: inv }, { data: acc }, { data: tx }] =
+        await Promise.all([
+          supabase.from("installments").select("*").order("fecha_inicio"),
+          supabase.from("investments").select("*").order("monto_actual", { ascending: false }),
+          supabase.from("accounts").select("*").order("orden"),
+          supabase.from("transactions").select("*").gte("mes", desde),
+        ]);
       setInstallments((inst as Installment[]) ?? []);
       setInvestments((inv as Investment[]) ?? []);
+      setAccounts((acc as Account[]) ?? []);
       setTransacciones((tx as Transaction[]) ?? []);
     }
     cargar();
@@ -56,6 +61,11 @@ export default function PanoramaPage() {
     <main className="mx-auto max-w-lg space-y-4 px-4 pb-24 pt-4">
       <h1 className="text-xl font-bold text-gray-900">Panorama</h1>
       <Proyeccion meses={meses} />
+      <CuentasTarjetas
+        supabase={supabase}
+        accounts={accounts}
+        onCambio={recargar}
+      />
       <Deuda installments={installments} />
       <Inversiones
         supabase={supabase}

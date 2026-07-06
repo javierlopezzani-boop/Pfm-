@@ -343,10 +343,16 @@ export function QuickEntry({ supabase, categorias, users, yo, onGuardado }: Prop
           ) : (
             <button
               onClick={() => confirmar()}
-              disabled={guardando}
-              className="mt-3 w-full rounded-xl bg-brand-600 py-3 text-base font-semibold text-white active:bg-brand-700 disabled:opacity-50"
+              disabled={guardando || !borrador.categoriaId || borrador.monto <= 0}
+              className="mt-3 w-full rounded-xl bg-brand-600 py-3 text-base font-semibold text-white active:bg-brand-700 disabled:cursor-not-allowed disabled:bg-gray-300"
             >
-              {guardando ? "Guardando…" : `Guardar ${borrador.monto ? clp(borrador.monto) : ""}`}
+              {guardando
+                ? "Guardando…"
+                : !borrador.categoriaId
+                ? "Elige una categoría"
+                : borrador.monto <= 0
+                ? "Ingresa un monto"
+                : `Guardar ${clp(borrador.monto)}`}
             </button>
           )}
           {error && <p className="mt-2 text-sm text-red-600">{error}</p>}
